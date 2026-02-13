@@ -1,4 +1,4 @@
-🧠 4 COME FUNZIONA LA SIMULAZIONE
+🧠COME FUNZIONA LA SIMULAZIONE
 
 La simulazione di War Impact Simulator è progettata come un sistema dinamico multi-variabile che analizza simultaneamente fattori militari, economici, politici e sociali.
 
@@ -147,3 +147,4 @@ La simulazione non ha scopo di glorificare la guerra, ma di:
 - Stimolare riflessione critica  
 
 War Impact Simulator è quindi uno strumento educativo interdisciplinare che unisce informatica, matematica, economia ed educazione civica.
+
