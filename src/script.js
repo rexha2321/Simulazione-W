@@ -1,136 +1,121 @@
-/**
- * WAR IMPACT SIMULATOR 2026 - Control Logic
- */
+const countries = {
 
-let selectedCountry = null;
-let teamA = [];
-let teamB = [];
-let turnCount = 0;
+USA:{gdp:25, military:880, population:331},
+China:{gdp:18, military:290, population:1410},
+Russia:{gdp:2.2, military:120, population:145},
+India:{gdp:3.5, military:80, population:1400},
+UK:{gdp:3.2, military:65, population:67},
+France:{gdp:3, military:55, population:65},
+Germany:{gdp:4.4, military:60, population:83},
+Italy:{gdp:2.2, military:30, population:59},
+Japan:{gdp:4.2, military:50, population:125},
+Brazil:{gdp:2.1, military:25, population:214}
 
-// 1. Selezione del paese dal database laterale
-function selectCountry(data) {
-    selectedCountry = data;
-    // Feedback visivo nel log (opzionale)
-    console.log(`Target acquisito: ${data.nome}`);
-    
-    // Rimuove evidenza da altri paesi e la aggiunge al selezionato
-    document.querySelectorAll('.c-card').forEach(el => el.style.borderColor = 'transparent');
-    event.currentTarget.style.borderColor = 'var(--neon-blue)';
 }
 
-// 2. Aggiunta dei paesi alle fazioni
-function addTo(side) {
-    if (!selectedCountry) {
-        alert("SISTEMA: Selezionare una nazione dal database prima di procedere.");
-        return;
-    }
+const countryA = document.getElementById("countryA")
+const countryB = document.getElementById("countryB")
 
-    // Clonazione dell'oggetto per evitare riferimenti duplicati
-    const countryClone = JSON.parse(JSON.stringify(selectedCountry));
-    
-    if (side === 'A') {
-        teamA.push(countryClone);
-    } else {
-        teamB.push(countryClone);
-    }
+Object.keys(countries).forEach(c=>{
 
-    selectedCountry = null;
-    updateDisplay();
+let option1=document.createElement("option")
+option1.value=c
+option1.text=c
+countryA.appendChild(option1)
+
+let option2=document.createElement("option")
+option2.value=c
+option2.text=c
+countryB.appendChild(option2)
+
+})
+
+let map = L.map('map').setView([20,0],2)
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+}).addTo(map)
+
+let markers=[]
+
+function getPower(country){
+
+let data=countries[country]
+
+return data.gdp*2 + data.military*3 + data.population*0.5
+
 }
 
-// 3. Esecuzione del turno (Comunicazione con PHP)
-async function executeTurn() {
-    if (teamA.length === 0 || teamB.length === 0) {
-        alert("ERRORE OPERATIVO: Entrambe le fazioni devono avere almeno un'unità attiva.");
-        return;
-    }
+function startSimulation(){
 
-    const loader = document.querySelector('.glitch');
-    loader.innerText = "CALCOLO IMPATTO IN CORSO...";
+markers.forEach(m=>map.removeLayer(m))
 
-    try {
-        const response = await fetch('index.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fazioneA: teamA, fazioneB: teamB })
-        });
+let A=countryA.value
+let B=countryB.value
+let months=Number(document.getElementById("months").value)
 
-        if (!response.ok) throw new Error("Server Error");
+let powerA=getPower(A)
+let powerB=getPower(B)
 
-        const result = await response.json();
-        
-        // Aggiorna le fazioni con i nuovi dati calcolati dal PHP
-        teamA = result.fazioneA;
-        teamB = result.fazioneB;
-        turnCount++;
-        
-        updateDisplay();
-        updateGlobalTicker();
+let lossA=0
+let lossB=0
 
-    } catch (error) {
-        console.error("Errore di simulazione:", error);
-        alert("CRITICAL FAILURE: Connessione al motore di calcolo interrotta.");
-    } finally {
-        loader.innerText = "WAR IMPACT SIMULATOR 2026";
-    }
+let historyA=[]
+let historyB=[]
+
+for(let i=0;i<months;i++){
+
+let factor=Math.random()
+
+lossA+=factor*powerB*0.02
+lossB+=factor*powerA*0.02
+
+historyA.push(lossA)
+historyB.push(lossB)
+
 }
 
-// 4. Aggiornamento dell'Interfaccia (Dashboard)
-function updateDisplay() {
-    const renderFaction = (list, containerId) => {
-        const container = document.querySelector(`#${containerId} .unit-list`);
-        container.innerHTML = list.map(p => {
-            // Calcolo percentuali per le barre grafiche
-            const stabPercent = Math.max(0, p.sociale.stabilita * 100);
-            const ecoPercent = Math.max(0, 100 - p.stato.stress_economico_locale);
-            
-            return `
-                <div class="unit-stats">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:1.1rem;">${p.flag} <strong>${p.nome.toUpperCase()}</strong></span>
-                        <span style="color:var(--neon-yellow); font-size:0.7rem;">RANK: #${p.gfp_rank}</span>
-                    </div>
+generateChart(historyA,historyB,months,A,B)
 
-                    <div style="margin: 10px 0; display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
-                        <div>💀 MIL: <span style="color:white">${Math.floor(p.stato.perdite_mil).toLocaleString()}</span></div>
-                        <div>🏘️ CIV: <span style="color:white">${Math.floor(p.stato.perdite_civ).toLocaleString()}</span></div>
-                    </div>
+document.getElementById("report").innerHTML=
+`
+⚔️ Conflitto tra ${A} e ${B}<br><br>
 
-                    <div style="display:flex; justify-content:space-between; font-size:0.65rem;">
-                        <span>STABILITÀ INTERNA</span>
-                        <span>${stabPercent.toFixed(0)}%</span>
-                    </div>
-                    <div class="status-bar-container">
-                        <div class="status-bar-fill fill-stabilita" style="width: ${stabPercent}%"></div>
-                    </div>
+Perdite militari ${A}: ${Math.round(lossA)}<br>
+Perdite militari ${B}: ${Math.round(lossB)}<br><br>
 
-                    <div style="display:flex; justify-content:space-between; font-size:0.65rem;">
-                        <span>TENUTA FINANZIARIA</span>
-                        <span>${ecoPercent.toFixed(0)}%</span>
-                    </div>
-                    <div class="status-bar-container">
-                        <div class="status-bar-fill fill-economia" style="width: ${ecoPercent}%"></div>
-                    </div>
+Durata guerra: ${months} mesi
+`
 
-                    <div class="data-grid" style="display:grid; grid-template-columns: 1fr 1fr; font-size:0.7rem;">
-                        <span>📈 INFL: ${p.stato.inflazione.toFixed(1)}%</span>
-                        <span>💰 PIL: ${p.economico.pil.toFixed(0)}B $</span>
-                    </div>
-
-                    ${p.sociale.stabilita < 0.4 ? '<span class="alert-text">⚠️ COLLASSO GOVERNATIVO IMMINENTE</span>' : ''}
-                    ${p.stato.sfollati > 100000 ? '<span class="alert-text">🛂 CRISI MIGRATORIA ACUTA</span>' : ''}
-                </div>
-            `;
-        }).join('');
-    };
-
-    renderFaction(teamA, 'teamA');
-    renderFaction(teamB, 'teamB');
 }
 
-// 5. Aggiornamento barra di stato superiore
-function updateGlobalTicker() {
-    const ticker = document.getElementById('global-ticker');
-    const riskLevel = turnCount > 5 ? "CRITICO" : "IN ESCALATION";
-    ticker.innerHTML = `MESE DI CONFLITTO: ${turnCount} | LIVELLO RISCHIO: ${riskLevel} | ANALISI SISTEMICA ATTIVA`;
+function generateChart(dataA,dataB,months,A,B){
+
+let ctx=document.getElementById("warChart")
+
+new Chart(ctx,{
+type:'line',
+
+data:{
+labels:Array.from({length:months},(_,i)=>i+1),
+
+datasets:[
+
+{
+label:A,
+data:dataA,
+borderColor:"red"
+},
+
+{
+label:B,
+data:dataB,
+borderColor:"cyan"
+}
+
+]
+
+}
+
+})
+
 }

@@ -1,252 +1,60 @@
-/* --- CONFIGURAZIONE VARIABILI --- */
-:root {
-    --bg-deep: #050a0f;
-    --bg-panel: rgba(13, 25, 39, 0.9);
-    --border-color: #1a3a5a;
-    --neon-blue: #00f2ff;
-    --neon-red: #ff003c;
-    --neon-yellow: #f1c40f;
-    --text-main: #a0adba;
-    --text-bright: #ffffff;
-    --font-military: 'Courier New', Courier, monospace;
+body{
+background:#0b1120;
+color:white;
+font-family:Arial;
+margin:0;
+padding:0;
 }
 
-/* --- RESET E LAYOUT BASE --- */
-* {
-    box-sizing: border-box;
+h1{
+text-align:center;
+padding:20px;
 }
 
-body {
-    background-color: var(--bg-deep);
-    color: var(--text-main);
-    font-family: var(--font-military);
-    margin: 0;
-    overflow: hidden; /* Evita scroll della pagina intera */
-    height: 100vh;
+.controls{
+padding:20px;
+background:#111827;
+display:flex;
+gap:15px;
+align-items:center;
+justify-content:center;
+flex-wrap:wrap;
 }
 
-/* Sfondo con effetto radar/griglia */
-body::before {
-    content: "";
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-image: 
-        linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
-    background-size: 30px 30px;
-    z-index: -1;
+select,input{
+padding:8px;
+border-radius:6px;
+border:none;
+background:#1f2937;
+color:white;
 }
 
-/* --- HEADER --- */
-header {
-    height: 60px;
-    border-bottom: 2px solid var(--border-color);
-    background: var(--bg-panel);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+button{
+padding:10px 20px;
+background:#3b82f6;
+border:none;
+border-radius:8px;
+cursor:pointer;
 }
 
-.glitch {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--neon-blue);
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    text-shadow: 0 0 10px var(--neon-blue);
+button:hover{
+background:#2563eb;
 }
 
-#global-ticker {
-    font-size: 0.7rem;
-    color: var(--neon-red);
-    margin-top: 5px;
+#map{
+height:400px;
+margin:20px;
+border-radius:10px;
 }
 
-/* --- STRUTTURA PRINCIPALE --- */
-.grid-main {
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    height: calc(100vh - 60px);
-    gap: 15px;
-    padding: 15px;
+.dashboard{
+padding:20px;
+background:#111827;
+margin:20px;
+border-radius:10px;
 }
 
-/* Sidebar Paesi */
-.intel-panel {
-    background: var(--bg-panel);
-    border: 1px solid var(--border-color);
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+#report{
+margin-top:20px;
+font-size:18px;
 }
-
-.country-grid {
-    overflow-y: auto;
-    flex-grow: 1;
-    margin-top: 15px;
-}
-
-.c-card {
-    display: grid;
-    grid-template-columns: 30px 1fr 45px;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid transparent;
-    margin-bottom: 5px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.85rem;
-}
-
-.c-card:hover {
-    background: rgba(0, 242, 255, 0.1);
-    border-color: var(--neon-blue);
-    color: var(--text-bright);
-}
-
-.c-card .rank {
-    color: var(--neon-yellow);
-    text-align: right;
-}
-
-/* --- THEATRE OF WAR (CENTRO) --- */
-.theatre {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.factions {
-    display: grid;
-    grid-template-columns: 1fr 60px 1fr;
-    gap: 15px;
-    flex-grow: 1;
-}
-
-.f-box {
-    background: var(--bg-panel);
-    border: 1px solid var(--border-color);
-    border-top: 4px solid;
-    padding: 15px;
-    overflow-y: auto;
-    position: relative;
-}
-
-.border-red { border-color: var(--neon-red); }
-.border-blue { border-color: var(--neon-blue); }
-
-.f-header {
-    font-weight: bold;
-    font-size: 1rem;
-    margin-bottom: 15px;
-    text-align: center;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 5px;
-}
-
-.vs-logic {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: var(--neon-red);
-    font-size: 1.5rem;
-    text-shadow: 0 0 10px var(--neon-red);
-}
-
-/* --- CARTE PAESE NELLA SIMULAZIONE --- */
-.unit-stats {
-    background: rgba(0, 0, 0, 0.4);
-    border-left: 3px solid var(--neon-blue);
-    padding: 12px;
-    margin-bottom: 15px;
-    font-size: 0.8rem;
-}
-
-#teamA .unit-stats { border-left-color: var(--neon-red); }
-
-/* Barre di progresso */
-.status-bar-container {
-    background: #101820;
-    height: 6px;
-    margin: 8px 0;
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.status-bar-fill {
-    height: 100%;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.fill-stabilita { background: var(--neon-blue); box-shadow: 0 0 8px var(--neon-blue); }
-.fill-economia { background: var(--neon-yellow); box-shadow: 0 0 8px var(--neon-yellow); }
-
-.data-grid {
-    margin-top: 8px;
-    color: #6b7c8c;
-}
-
-/* --- COMANDI --- */
-.command-center {
-    height: 80px;
-    background: var(--bg-panel);
-    border: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-}
-
-.cmd-btn {
-    padding: 12px 20px;
-    border: 1px solid var(--border-color);
-    background: #0a1520;
-    color: var(--text-bright);
-    font-family: var(--font-military);
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.cmd-btn:hover {
-    background: var(--border-color);
-    box-shadow: 0 0 10px var(--neon-blue);
-}
-
-.cmd-btn.run {
-    background: var(--neon-red);
-    border-color: transparent;
-    color: white;
-    font-size: 1rem;
-    padding: 15px 30px;
-}
-
-.cmd-btn.run:hover {
-    box-shadow: 0 0 20px var(--neon-red);
-    transform: scale(1.05);
-}
-
-/* --- ANIMAZIONI --- */
-.alert-text {
-    color: var(--neon-red);
-    font-weight: bold;
-    animation: blink 1s infinite;
-    margin-top: 5px;
-    display: block;
-}
-
-@keyframes blink {
-    0% { opacity: 1; }
-    50% { opacity: 0.2; }
-    100% { opacity: 1; }
-}
-
-/* Scrollbar militare */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-color); }
-::-webkit-scrollbar-thumb:hover { background: var(--neon-blue); }
